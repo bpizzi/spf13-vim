@@ -48,19 +48,26 @@
         Bundle 'spf13/vim-preview'
         "Bundle 'greyblake/vim-preview'
         Bundle 'matchit.zip'
+        Bundle 'bpizzi/myvimcolors'
+        Bundle 'vim-scripts/bufexplorer.zip'
 
-    " General Programming 
+    " General Programming
         "Bundle 'spf13/snipmate.vim'
         Bundle 'garbas/vim-snipmate'
         Bundle 'spf13/snipmate-snippets'
-        Bundle 'tpope/vim-fugitive' 
+        Bundle 'tpope/vim-fugitive'
         Bundle 'scrooloose/nerdcommenter'
         Bundle 'tomtom/checksyntax_vim'
         Bundle 'godlygeek/tabular'
+        Bundle 'vim-scripts/ShowMarks'
 
     " PHP
         Bundle 'spf13/PIV'
         "Bundle 'taxilian/VimDebugger'
+        Bundle 'beyondwords/vim-twig'
+
+    " HTML
+        Bundle 'othree/html5.vim'
 
     " Python
         "Bundle 'bloveridge/pyflakes-vim'
@@ -73,6 +80,7 @@
     " Javascript
         Bundle 'bloveridge/jslint.vim'
         Bundle 'leshill/vim-json'
+        Bundle 'kchmck/vim-coffee-script'
 
     " Ruby
         Bundle 'rails.vim'
@@ -102,8 +110,8 @@
 	set viewoptions=folds,options,cursor,unix,slash " better unix / windows compatibility
 	set virtualedit=onemore 	   	" allow for cursor beyond last character
 	set history=1000  				" Store a ton of history (default is 20)
-	set spell 		 	        	" spell checking on
-	set hidden 		 	        	" allow buffer swtiching without saving
+	set nospell 		 	        	" spell checking on
+    set hidden
 
 	" Setting up the directories {
 		set backup 						" backups are nice ...
@@ -148,7 +156,7 @@
 	set showmatch					" show matching brackets/parenthesis
 	set incsearch					" find as you type search
 	set hlsearch					" highlight search terms
-	set winminheight=0				" windows can be 0 line high 
+	set winminheight=0				" windows can be 0 line high
 	set ignorecase					" case insensitive search
 	set smartcase					" case sensitive when uc present
 	set wildmenu					" show list instead of just completing
@@ -161,7 +169,6 @@
     set list
     set listchars=tab:,.,trail:.,extends:#,nbsp:. " Highlight problematic whitespace
 
-
 " }
 
 " Formatting {
@@ -172,7 +179,7 @@
 	set tabstop=4 					" an indentation every four columns
 	set softtabstop=4 				" let backspace delete indent
 	"set matchpairs+=<:>            	" match, to be used with % 
-	set pastetoggle=<F12>          	" pastetoggle (sane indentation on pastes)
+	set pastetoggle=<F>          	" pastetoggle (sane indentation on pastes)
 	"set comments=sl:/*,mb:*,elx:*/  " auto format comment blocks
 	" Remove trailing whitespaces and ^M chars
 	autocmd FileType c,cpp,java,php,js,python,twig,xml,yml autocmd BufWritePre <buffer> :call setline(1,map(getline(1,"$"),'substitute(v:val,"\\s\\+$","","")'))
@@ -194,7 +201,7 @@
 	map <C-L> <C-W>l<C-W>_
 	map <C-H> <C-W>h<C-W>_
 	map <C-K> <C-W>k<C-W>_
-	
+
     " Wrapped lines goes down/up to next row, rather than next line in file.
     nnoremap j gj
     nnoremap k gk
@@ -214,7 +221,7 @@
 
 	" Yank from the cursor to the end of the line, to be consistent with C and D.
 	nnoremap Y y$
-		
+
 	""" Code folding options
 	nmap <leader>f0 :set foldlevel=0<CR>
 	nmap <leader>f1 :set foldlevel=1<CR>
@@ -228,7 +235,8 @@
 	nmap <leader>f9 :set foldlevel=9<CR>
 
     "clearing highlighted search
-    nmap <silent> <leader>/ :nohlsearch<CR>
+    "nmap <silent> <leader>/ :nohlsearch<CR>
+    nmap <silent> <leader>n :set invhls<CR>:set hls?<CR>
 
 	" Shortcuts
 	" Change Working Directory to that of the current file
@@ -237,17 +245,42 @@
 
 	" visual shifting (does not exit Visual mode)
 	vnoremap < <gv
-	vnoremap > >gv 
+	vnoremap > >gv
 
 	" Fix home and end keybindings for screen, particularly on mac
 	" - for some reason this fixes the arrow keys too. huh.
 	map [F $
-	imap [F $
+	imap [F $
 	map [H g0
-	imap [H g0
-		
+	imap [H g0
+
 	" For when you forget to sudo.. Really Write the file.
 	cmap w!! w !sudo tee % >/dev/null
+
+    " Echanger buffer courant avec l'alternate
+    nmap <silent> <leader>a :b#<cr>
+
+    "Edition rapide de .vimrc
+    nmap <silent> <leader>ve :e $MYVIMRC<cr>
+    nmap <silent> <leader>vs :so $MYVIMRC<cr>
+
+    "Raccourcis pour lancer le correcteur orthographique
+    map <Leader>se :setlocal spell spelllang=en_us<CR>
+    map <Leader>sf :setlocal spell spelllang=fr_fr<CR>
+    map <Leader>sn :setlocal nospell<CR>
+
+    " JE SUIS UN DEGLINGO MOI, J'UTILISE PAS LES FLECHES
+    map <up> :wq!<cr>
+    map <down> :wq!<cr>
+    " Naviguer dans les buffers avec les fleches
+    map <right> :bn<cr>
+    map <left> :bp<cr>
+
+    "Goes one split down the one spli right: usually makes you go to the main windows
+    map <leader>w <C-j><C-l>
+
+    " Close current window
+    noremap <silent> <C-C> :close<cr>
 " }
 
 " Plugins {
@@ -258,7 +291,7 @@
 	" }
 
 	" PIV {
-		let g:DisableAutoPHPFolding = 0
+		let g:DisableAutoPHPFolding = 1
 		"let cfu=phpcomplete#CompletePHP
 	" }
 
@@ -300,7 +333,10 @@
 	" }
 
 	" Command-t {
-        let g:CommandTSearchPath = $HOME . '/Code'
+        let g:CommandTSearchPath = $HOME . '/Projects'
+        let g:CommandTMaxHeight = 30
+        "In Symfony2 projets: let CommandT ignore app/cache and app/logs
+        set wildignore+=app/cache/**,app/logs/**,vendor/**
 	" }
 
 	" OmniComplete {
@@ -355,7 +391,7 @@
 	" AutoCloseTag {
         " Make it so AutoCloseTag works for xml and xhtml files as well
         au FileType xhtml,xml ru ftplugin/html/autoclosetag.vim
-        nmap <Leader>ac <Plug>ToggleAutoCloseMappings
+        "nmap <leader>ac <Plug>ToggleAutoCloseMappings
 	" }
 
 	" SnipMate {
@@ -369,46 +405,15 @@
 	" NerdTree {
 		map <C-e> :NERDTreeToggle<CR>:NERDTreeMirror<CR>
 		map <leader>e :NERDTreeFind<CR>
-		nmap <leader>nt :NERDTreeFind<CR>
+		"nmap <leader>nt :NERDTreeFind<CR>
 
 		let NERDTreeShowBookmarks=1
 		let NERDTreeIgnore=['\.pyc', '\~$', '\.swo$', '\.swp$', '\.git', '\.hg', '\.svn', '\.bzr']
 		let NERDTreeChDirMode=0
 		let NERDTreeQuitOnOpen=1
-		let NERDTreeShowHidden=1
+		let NERDTreeShowHidden=0
 		let NERDTreeKeepTreeInNewTab=1
 	" }
-
-    " Tabularize {
-        if exists(":Tabularize")
-          nmap <Leader>a= :Tabularize /=<CR>
-          vmap <Leader>a= :Tabularize /=<CR>
-          nmap <Leader>a: :Tabularize /:<CR>
-          vmap <Leader>a: :Tabularize /:<CR>
-          nmap <Leader>a:: :Tabularize /:\zs<CR>
-          vmap <Leader>a:: :Tabularize /:\zs<CR>
-          nmap <Leader>a, :Tabularize /,<CR>
-          vmap <Leader>a, :Tabularize /,<CR>
-          nmap <Leader>a| :Tabularize /                                                                                                                                                              |<CR>
-          vmap <Leader>a| :Tabularize /                                                                                                                                                              |<CR>
-
-          " The following function automatically aligns when typing a
-          " supported character
-          inoremap <silent> <Bar>   <Bar><Esc>:call <SID>align()<CR>a
-
-          function! s:align()
-              let p = '^\s*|\s.*\s|\s*$'
-              if exists(':Tabularize') && getline('.') =~# '^\s*|' && (getline(line('.')-1) =~# p || getline(line('.')+1) =~# p)
-                  let column = strlen(substitute(getline('.')[0:col('.')],'[^|]','','g'))
-                  let position = strlen(matchstr(getline('.')[0:col('.')],'.*|\s*\zs.*'))
-                  Tabularize/|/l1
-                  normal! 0
-                  call search(repeat('[^|]*|',column).'\s\{-\}'.repeat('.',position),'ce',line('.'))
-              endif
-          endfunction
-
-        endif
-     " }
 
 	" Richard's plugins {
 		" Fuzzy Finder {
@@ -431,13 +436,13 @@
 		" }
 
 		" VCS commands {
-			nmap <leader>vs :VCSStatus<CR>
-			nmap <leader>vc :VCSCommit<CR>
-			nmap <leader>vb :VCSBlame<CR>
-			nmap <leader>va :VCSAdd<CR>
-			nmap <leader>vd :VCSVimDiff<CR>
-			nmap <leader>vl :VCSLog<CR>
-			nmap <leader>vu :VCSUpdate<CR>
+			"nmap <leader>vs :VCSStatus<CR>
+			"nmap <leader>vc :VCSCommit<CR>
+			"nmap <leader>vb :VCSBlame<CR>
+			"nmap <leader>va :VCSAdd<CR>
+			"nmap <leader>vd :VCSVimDiff<CR>
+			"nmap <leader>vl :VCSLog<CR>
+			"nmap <leader>vu :VCSUpdate<CR>
 		" }
 		" php-doc commands {
 			nmap <leader>pd :call PhpDocSingle()<CR>
@@ -479,9 +484,12 @@
 " GUI Settings {
 	" GVIM- (here instead of .gvimrc)
 	if has('gui_running')
-		set guioptions-=T          	" remove the toolbar
-		set lines=40               	" 40 lines of text instead of 24,
-		set transparency=5          " Make the window slightly transparent
+        color xoria256
+        set t_Co=256
+        set guioptions=ac
+        set guifont=Inconsolata 
+		"set lines=40               	" 40 lines of text instead of 24,
+		"set transparency=5          " Make the window slightly transparent
 	else
 		set term=builtin_ansi       " Make arrow and other keys work
 	endif
